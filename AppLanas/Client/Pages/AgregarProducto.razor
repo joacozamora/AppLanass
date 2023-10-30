@@ -1,0 +1,37 @@
+﻿@page "/productos/agregar"
+@inject IHttpServicio http
+@inject NavigationManager navigationManager
+
+<div class="p-4">
+    <div class="container col-md-6">
+        <div class="shadow p-4 bg-white">
+            <FormProducto producto="producto" onValidSubbmit="Grabar" onCancel="Cancelar" />
+        </div>
+    </div>
+</div>
+@code {
+	private Producto producto = new Producto();
+
+	private async Task Grabar()
+	{
+		ProductoDTO productoDTO = new()
+			{
+				nombreProducto = producto.nombreProducto,
+				precioProveedor = producto.precioProveedor,
+				porcentajeGanancia = producto.porcentajeGanancia,
+			};
+		var httpRespuesta = await http.Post<ProductoDTO>("api/Producto", productoDTO);
+
+		if (httpRespuesta.Error)
+		{
+			var body = httpRespuesta.HttpResponseMessage;
+		}
+
+		navigationManager.NavigateTo("/productos");
+	}
+
+	private void Cancelar()
+	{
+		navigationManager.NavigateTo("/");
+	}
+}

@@ -1,0 +1,54 @@
+﻿@page "/productos/editar/{productoid:int}"
+@inject IHttpServicio http
+@inject NavigationManager navigationManager
+
+<div class="p-4">
+    <div class="container col-md-6">
+        <div class="shadow p-4 bg-white">
+            <FormProducto producto="producto" onValidSubbmit="Grabar" onCancel="Cancelar" />
+        </div>
+    </div>
+</div>
+@code {
+    private Producto producto = new Producto();
+    [Parameter] public int productoid { get; set; }
+    string Mensaje = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Leer();
+    }
+
+    private async Task Leer()
+    {
+        var respuesta = await http.Get<Producto>($"api/Producto/{productoid}");
+
+        if (!respuesta.Error)
+        {
+            producto = respuesta.Respuesta;
+        }
+        else
+        {
+            Mensaje = await respuesta.ObtenerError();
+        }
+
+    }
+
+    private async Task Grabar()
+    {
+        var respuesta = await http.Put<Producto>($"api/Producto/{productoid}", producto);
+        if (respuesta.Error)
+        {
+            var body = respuesta.HttpResponseMessage;
+        }
+
+        navigationManager.NavigateTo("/productos");
+    }
+
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/productos");
+    }
+
+}

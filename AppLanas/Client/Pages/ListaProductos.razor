@@ -1,0 +1,162 @@
+﻿@page "/productos"
+@inject NavigationManager navigationManager
+@inject IHttpServicio http
+
+
+
+<PageTitle> PRODUCTOS </PageTitle>
+
+<HeadContent>	
+	<meta name="description" content="Listado de productos"
+</HeadContent>
+
+<h3>lista de productos</h3>
+<div class="custom-productos-container">
+
+	<a class="btn btn-success d-inline-block mb-4 rounded custom-crear-button" href="/productos/agregar">
+		<i class="order-0 oi oi-heart"></i> Crear Producto
+	</a>
+
+	<div class="container-fluid">
+		<div class="table-responsive">
+			<table class="table table-hover table-striped shadow bg-white">
+
+				<thead class="bg-primary text-white text-center fw-bolder">
+					<tr>
+						<th scope="col">Producto</th>
+						<th scope="col">Proveedor</th>
+						<th scope="col">Porcentaje Ganancia</th>
+						<th scope="col">Precio (Con % final)</th>
+						<th scope="col">Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Error)
+					{
+						<tr>@Mensaje</tr>
+					}
+					else
+					{
+						@if (productos == null)
+						{
+							<tr>Cargando lista de insumos...</tr>
+						}
+						else if (productos.Count == 0)
+						{
+							<tr>No existen datos</tr>
+						}
+						else
+						{
+							@foreach (var item in productos)
+							{
+								<tr>
+
+									<td class="p-3 text-center">@item.nombreProducto</td>
+									<td class="p-3 text-center">$@item.precioProveedor</td>
+									<td class="p-3 text-center">@item.porcentajeGanancia %</td>
+									<td class="p-3 text-center">$@item.precioProducto</td>
+
+									<td class="p-3 text-center">
+										<button class="btn btn-danger d-inline-block custom-eliminar-button" @onclick="()=>Eliminar(item)"><i class="oi oi-trash"></i></button>
+										<button class="btn btn-primary d-inline-block custom-editar-button" @onclick="()=>Editar(item.id)"><i class="oi oi-pencil"></i></button>
+									</td>
+								</tr>
+							}
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+
+@*<a class="btn btn-primary" href="productos/agregar">Agregar Producto</a>
+
+<table>
+	<tr>
+		<th>Nombre Producto </th>
+		<th>Precio Proveedor </th>
+		<th>Porcentaje Ganancia </th>
+		<th>Precio Producto (con su % final)  </th>
+	</tr>
+	<tbody>
+	@if(Error)
+	{
+		<tr>@Mensaje</tr>
+	}
+
+	else 
+	{
+		@if (productos == null)
+		{
+			<tr>Cargando...</tr>
+		}
+
+		else if (productos.Count == 0)
+		{
+			<tr>no existen datos</tr>
+		}
+
+		else
+		{
+			@foreach(var item in productos)
+			{
+				<tr>
+					<td>@item.nombreProducto</td>
+					<td>@item.precioProveedor</td>
+					<td>@item.porcentajeGanancia</td>
+					<td>@item.precioProducto</td>
+				</tr>	
+			}
+		}
+	}
+	</tbody>
+</table>
+*@
+@code {
+	List<Producto>? productos;
+	Producto productoBorrar;
+	Producto producto;
+	bool Error = false;
+	string Mensaje = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		await Leer();
+
+	}
+
+	private async Task Leer()
+	{
+		var respuesta = await http.Get<List<Producto>>("api/Producto");
+		if(!respuesta.Error)
+		{
+			productos = respuesta.Respuesta;
+		}
+		else
+		{
+			Mensaje = await respuesta.ObtenerError();
+		}
+	}
+
+	private void Editar(int productoId)
+	{
+		navigationManager.NavigateTo($"/productos/editar/{productoId}");
+	}
+
+	private async Task Eliminar(Producto prodBorrar)
+	{
+		productoBorrar = prodBorrar;
+
+		var respuesta = await http.Delete($"api/Producto/{productoBorrar.id}");
+		if (respuesta.Error)
+		{
+			var body = "Error, no se pudo borrar";
+		}
+		productoBorrar = null;
+		await Leer();
+	}
+}
+

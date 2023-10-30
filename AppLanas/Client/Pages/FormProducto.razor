@@ -1,0 +1,41 @@
+﻿<EditForm Model="producto" OnValidSubmit="onValidSubbmit"> 
+	<DataAnnotationsValidator/>
+	<div class="form-group">
+		<label>Nombre producto </label>
+		<div>
+			<InputText class="form-control" @bind-Value="@producto.nombreProducto" />
+			<ValidationMessage For= "@(() => producto.nombreProducto)"/>
+		</div>
+	</div>
+	
+@*	error del componente con los decimal*@
+	<div class="form-group">
+		<label>Precio proveedor </label>
+		<div>
+			<InputNumber class="form-control" @bind-Value="@producto.precioProveedor" />
+			<ValidationMessage For="@(() => producto.precioProveedor)" />
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label>Porcentaje ganancia </label>
+		<div>
+			<InputNumber class="form-control" @bind-Value="@producto.porcentajeGanancia" />
+			<ValidationMessage For="@(() => producto.porcentajeGanancia)" />
+		</div>
+	</div>
+
+	<br />
+	<button class="btn btn-primary" type="submit">Aceptar</button>
+	<button class="btn btn-secondary" @onclick="onCancel">Cancelar</button>
+
+
+
+	
+</EditForm>
+
+@code {
+	[Parameter] public Producto producto { get; set; } = new Producto();
+	[Parameter] public EventCallback onValidSubbmit { get; set; }
+	[Parameter] public EventCallback onCancel { get; set; }
+}
